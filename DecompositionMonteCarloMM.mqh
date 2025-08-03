@@ -77,8 +77,8 @@ private:
 
 /*── LOSE ──*/
    void loseStep(){
-      if(streak>=5) stock += 3;
-      streak = 0; // 敗北時は連勝数リセット
+      if(streak>=6) stock += 4*streak - 21; // 連勝数が6以上ならストック加算
+      streak = 0;                            // 敗北時は連勝数リセット
 
       Ins(seq,ArraySize(seq), seq[0]+seq[ArraySize(seq)-1]);
       if(seq[0]==0) avgA(); else avgB();      // ← ここも if/else
