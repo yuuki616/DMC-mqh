@@ -56,7 +56,9 @@ private:
 /*── WIN ──*/
    void winStep(){
       int n = ArraySize(seq);
-      if(n==2 && seq[0]==0 && seq[1]==1) streak++; else streak=0;
+      // 条件成立時は連勝数+1、不成立時は現状維持
+      if(n==2 && seq[0]==0 && seq[1]==1)
+         streak++;
 
       if(n==2){ seq[0]=0; seq[1]=1; }
       else if(n==3){
@@ -71,7 +73,7 @@ private:
 /*── LOSE ──*/
    void loseStep(){
       if(streak>=5) stock += 3;
-      streak = 0;
+      streak = 0; // 敗北時は連勝数リセット
 
       Ins(seq,ArraySize(seq), seq[0]+seq[ArraySize(seq)-1]);
       if(seq[0]==0) avgA(); else avgB();      // ← ここも if/else
