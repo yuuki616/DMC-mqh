@@ -53,8 +53,7 @@ private:
          long tot = red; for(int i=1;i<ArraySize(seq);i++) tot += seq[i];
          int q = (int)(tot / sub), r = (int)(tot % sub);
          Erase(seq,0); for(int i=0;i<ArraySize(seq);i++) seq[i]=q;
-         if(r) seq[0]+=r; Ins(seq,0,0);
-         avgA();                                 // 数列整形を完結
+         if(r) seq[0]+=r; Ins(seq,0,0);          // 再配布のみで整形完了
       }
    }
 
