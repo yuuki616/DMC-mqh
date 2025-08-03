@@ -62,8 +62,13 @@ private:
 
       if(n==2){ seq[0]=0; seq[1]=1; }
       else if(n==3){
-         int v=seq[1]; Erase(seq,0); Erase(seq,0);
-         seq[0]=v/2; Ins(seq,1,v-v/2);
+         int center = seq[1];            // 中央の値を取得
+         Erase(seq,0);                   // 先頭を削除
+         Erase(seq,ArraySize(seq)-1);    // 末尾を削除
+         int left  = center/2;           // 左値を計算
+         int right = left + center%2;    // 右値を計算
+         seq[0] = left;                  // 左値を設定
+         Ins(seq,1,right);               // 右値を挿入
       }else{
          Erase(seq,0); Erase(seq,ArraySize(seq)-1);
       }
