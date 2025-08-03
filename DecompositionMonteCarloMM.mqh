@@ -90,7 +90,7 @@ private:
       if(seq[0]==0) avgA(); else avgB();      // ← ここも if/else
 
       /* ストック消費：先頭のみ 0 化 */
-      if(seq[0]<=stock && ArraySize(seq)>=2){
+      if(seq[0]<=stock){
          int use = seq[0];
          stock  -= use;                        // ストックから差し引く
          seq[0]  = 0;                          // 先頭を 0 に設定
