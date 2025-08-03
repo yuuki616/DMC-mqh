@@ -44,11 +44,18 @@ private:
       if(seq[0]==0) return;
       int red = seq[0]; seq[0]=0;
       int sub = ArraySize(seq)-1;
-      if(red<sub){ seq[1]+=red; return; }
-      long tot = red; for(int i=1;i<ArraySize(seq);i++) tot += seq[i];
-      int q = (int)(tot / sub), r = (int)(tot % sub);
-      Erase(seq,0); for(int i=0;i<ArraySize(seq);i++) seq[i]=q;
-      if(r) seq[0]+=r; Ins(seq,0,0);
+
+      // 残り要素より少ない場合は2番目へ加算のみ
+      if(red<sub){
+         seq[1] += red;
+      }else{
+         long tot = red; for(int i=1;i<ArraySize(seq);i++) tot += seq[i];
+         int q = (int)(tot / sub), r = (int)(tot % sub);
+         Erase(seq,0); for(int i=0;i<ArraySize(seq);i++) seq[i]=q;
+         if(r) seq[0]+=r; Ins(seq,0,0);
+      }
+
+      avgA();                                    // 数列整形を完結
    }
 
    int gm()const{ return (streak<=1)?1:(streak==2)?1:(streak==3)?2:(streak==4)?3:5; }
@@ -90,7 +97,7 @@ private:
          seq[0]  = 0;                          // 先頭を 0 に設定
       }
 
-      if(seq[0]>0){ zeroGen(); avgA(); }
+      if(seq[0]>0) zeroGen();
    }
 
 public:
