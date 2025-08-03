@@ -1,0 +1,103 @@
+//+------------------------------------------------------------------+
+//| DecompositionMonteCarloMM.mqh – 単数列分解管理モンテカルロ法     |
+//+------------------------------------------------------------------+
+#property strict
+#define _MIN(a,b) ((a)<(b)?(a):(b))
+
+/* 配列ユーティリティ */
+void Erase(int &a[],int p){int n=ArraySize(a); if(p<0||p>=n) return;
+                           for(int i=p;i<n-1;i++) a[i]=a[i+1];
+                           ArrayResize(a,n-1);}
+void Ins  (int &a[],int p,int v){int n=ArraySize(a); ArrayResize(a,n+1);
+                                 for(int i=n;i>p;i--) a[i]=a[i-1]; a[p]=v;}
+
+/*──────────────────────────────────────────*/
+class CDecompMC
+{
+private:
+   int seq[]; int stock; int streak;
+
+/*── A 平均 (先頭 0) ──*/
+   void avgA(){
+      Erase(seq,0);
+      int  n   = ArraySize(seq);
+      long sum = 0; for(int i=0;i<n;i++) sum += seq[i];
+      int  q   = (int)(sum / n);
+      int  r   = (int)(sum % n);
+      for(int i=0;i<n;i++) seq[i] = q;
+      if(r) seq[0] += r;
+      Ins(seq,0,0);
+   }
+
+/*── B 平均 (先頭≠0) ──*/
+   void avgB(){
+      int  n   = ArraySize(seq);
+      long sum = 0; for(int i=0;i<n;i++) sum += seq[i];
+      int  q   = (int)(sum / n);
+      int  r   = (int)(sum % n);
+      for(int i=0;i<n;i++) seq[i] = q;
+      if(r && n>=2) seq[1] += r;
+   }
+
+/*── 0 生成 ──*/
+   void zeroGen(){
+      if(seq[0]==0) return;
+      int red = seq[0]; seq[0]=0;
+      int sub = ArraySize(seq)-1;
+      if(red<sub){ seq[1]+=red; return; }
+      long tot = red; for(int i=1;i<ArraySize(seq);i++) tot += seq[i];
+      int q = (int)(tot / sub), r = (int)(tot % sub);
+      Erase(seq,0); for(int i=0;i<ArraySize(seq);i++) seq[i]=q;
+      if(r) seq[0]+=r; Ins(seq,0,0);
+   }
+
+   int gm()const{ return (streak<=1)?1:(streak==2)?1:(streak==3)?2:(streak==4)?3:5; }
+
+/*── WIN ──*/
+   void winStep(){
+      int n = ArraySize(seq);
+      if(n==2 && seq[0]==0 && seq[1]==1) streak++; else streak=0;
+
+      if(n==2){ seq[0]=0; seq[1]=1; }
+      else if(n==3){
+         int v=seq[1]; Erase(seq,0); Erase(seq,0);
+         seq[0]=v/2; Ins(seq,1,v-v/2);
+      }else{
+         Erase(seq,0); Erase(seq,ArraySize(seq)-1);
+      }
+      if(seq[0]==0) avgA(); else avgB();      // ← if/else で呼び出し
+   }
+
+/*── LOSE ──*/
+   void loseStep(){
+      if(streak>=5) stock += 3;
+      streak = 0;
+
+      Ins(seq,ArraySize(seq), seq[0]+seq[ArraySize(seq)-1]);
+      if(seq[0]==0) avgA(); else avgB();      // ← ここも if/else
+
+      /* ストック消費：先頭 0 化し idx1 へ移動 */
+      if(seq[0]<=stock && ArraySize(seq)>=2){
+         int use = seq[0];
+         stock  -= use;
+         seq[0]  = 0;
+         seq[1] += use;
+         avgA();                               // 整列
+      }
+
+      if(seq[0]>0){ zeroGen(); avgA(); }
+   }
+
+public:
+   void Init(){ ArrayResize(seq,2); seq[0]=0; seq[1]=1; stock=streak=0; }
+   void OnTrade(bool win){ if(win) winStep(); else loseStep(); }
+
+   double NextLot() const{
+      int u = seq[0] + seq[ArraySize(seq)-1];
+      return (double)u * gm();                // 基本ベット額=1
+   }
+
+   /* デバッグ用 */
+   string Seq(){string s="";for(int i=0;i<ArraySize(seq);i++){if(i)s+=",";s+=IntegerToString(seq[i]);}return s;}
+   int    Stock(){ return stock; }
+};
