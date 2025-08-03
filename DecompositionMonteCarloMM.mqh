@@ -83,13 +83,11 @@ private:
       Ins(seq,ArraySize(seq), seq[0]+seq[ArraySize(seq)-1]);
       if(seq[0]==0) avgA(); else avgB();      // ← ここも if/else
 
-      /* ストック消費：先頭 0 化し idx1 へ移動 */
+      /* ストック消費：先頭のみ 0 化 */
       if(seq[0]<=stock && ArraySize(seq)>=2){
          int use = seq[0];
-         stock  -= use;
-         seq[0]  = 0;
-         seq[1] += use;
-         avgA();                               // 整列
+         stock  -= use;                        // ストックから差し引く
+         seq[0]  = 0;                          // 先頭を 0 に設定
       }
 
       if(seq[0]>0){ zeroGen(); avgA(); }
