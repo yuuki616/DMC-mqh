@@ -61,7 +61,9 @@ private:
 
 /*── WIN ──*/
    void winStep(){
-      int n = ArraySize(seq);
+      // 勝敗前の数列が基本形か判定
+      int  n    = ArraySize(seq);
+      bool base = (n==2 && seq[0]==0 && seq[n-1]==1);
 
       if(n==2){
          seq[0]=0; seq[1]=1;
@@ -81,11 +83,9 @@ private:
 
       if(seq[0]==0) avgA(); else avgB();      // ← if/else で呼び出し
 
-      // 連勝数の更新：最終シーケンスが基本形なら加算、それ以外はリセット
-      if(ArraySize(seq)==2 && seq[0]==0 && seq[1]==1)
+      // 連勝数の更新：勝敗前が基本形なら加算
+      if(base)
          streak++;
-      else
-         streak = 1;
    }
 
 /*── LOSE ──*/
